@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список дел</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        .done { text-decoration: line-through; color: gray; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Мои задачи</h1>
+    
+    <h2>Добавить задачу</h2>
+    <form method="POST" action="/add">
+        <input type="text" name="task" placeholder="Новая задача" required>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <form method="POST" action="/clear">
+        <button type="submit">Очистить всё</button>
+    </form>
+    
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <div>
+                    <strong>{{ task.text }}</strong><br>
+                    <small style="color:#c705c78f;">Добавлено: {{ task.date }}</small>
+                </div>
+                <a href="/delete/{{ loop.index0 }}">[Удалить]</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
