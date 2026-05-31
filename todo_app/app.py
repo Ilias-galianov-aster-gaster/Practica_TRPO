@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import json
 import os
-from datetime import datetime
+from datetime import date
 
 app = Flask(__name__)
 FILE_NAME = 'tasks.json'
@@ -22,13 +22,11 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_task():
-    new_task_text = request.form.get('task', '').strip()
-    if new_task_text:
+    new_task = request.form.get('task', '').strip()
+    if new_task:
+        today = date.today().strftime('%Y-%m-%d')
         tasks = load_tasks()
-        tasks.append({
-            'text': new_task_text,
-            'date': datetime.now().strftime('%d.%m.%Y %H:%M')
-        })
+        tasks.append({'text': new_task, 'date': today, 'done': False})
         save_tasks(tasks)
     return redirect('/')
 
@@ -40,31 +38,62 @@ def delete_task(task_id):
         save_tasks(tasks)
     return redirect('/')
 
-# Маршрут редактирования задачи
 @app.route('/edit/<int:task_id>', methods=['GET', 'POST'])
 def edit_task(task_id):
     tasks = load_tasks()
     if task_id < 0 or task_id >= len(tasks):
         return "Задача не найдена", 404
-        
     task = tasks[task_id]
-    
     if request.method == 'POST':
         new_text = request.form.get('task', '').strip()
-        
         if not new_text:
             return render_template('edit.html', task=task, message="Текст не может быть пустым!")
-            
-        # Самостоятельное задание: проверка на идентичный текст
-        old_text = task['text']
-        if new_text == old_text:
+        if new_text == task['text']:
             return render_template('edit.html', task=task, message="Ничего не изменено")
-            
         tasks[task_id]['text'] = new_text
         save_tasks(tasks)
         return redirect('/')
-        
     return render_template('edit.html', task=task)
+
+@app.route('/toggle/<int:task_id>')
+def toggle_task(task_id):
+    tasks = load_tasks()
+    if 0 <= task_id < len(tasks):
+        tasks[task_id]['done'] = not tasks[task_id]['done']
+        save_tasks(tasks)
+    return redirect('/')
+
+@app.route('/clear_all')
+def clear_all():
+    save_tasks([])
+    return redirect('/')
+
+# Самостоятельные задания
+@app.route('/active')
+def active_tasks():
+    tasks = [t for t in load_tasks() if not t.get('done')]
+    return render_template('index.html', tasks=tasks)
+
+@app.route('/completed')
+def completed_tasks():
+    tasks = [t for t in load_tasks() if t.get('done')]
+    return render_template('index.html', tasks=tasks)
+
+@app.route('/complete_all')
+def complete_all():
+    tasks = load_tasks()
+    for task in tasks:
+        task['done'] = True
+    save_tasks(tasks)
+    return redirect('/')
+
+@app.route('/uncomplete_all')
+def uncomplete_all():
+    tasks = load_tasks()
+    for task in tasks:
+        task['done'] = False
+    save_tasks(tasks)
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(debug=True)
