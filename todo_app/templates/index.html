@@ -12,41 +12,71 @@
         a { margin-left: 8px; text-decoration: none; color: #0055cc; }
         a:hover { text-decoration: underline; }
         .nav-btn { display: inline-block; padding: 5px 10px; margin: 5px 5px 5px 0; background: #ccc; text-decoration: none; color: #333; border-radius: 3px; }
+
+        /* CSS для приоритетов (Пункт 3 из скрина) */
+        .high { color: red; font-weight: bold; }
+        .medium { color: orange; }
+        .low { color: green; }
     </style>
 </head>
 <body>
     <h1>Мои задачи</h1>
     <p>Осталось задач: {{ tasks|selectattr('done', 'equalto', False)|list|length }}</p>
     
+    <!-- ИНДИКАТОРЫ ПРИОРИТЕТОВ (Пункт 1 из скрина) -->
+    <p>
+        <span style="color: red;">🔴 Высокий:</span> {{ tasks|selectattr('priority', 'equalto', 'высокий')|list|length }},
+        <span style="color: orange;">🟡 Средний:</span> {{ tasks|selectattr('priority', 'equalto', 'средний')|list|length }},
+        <span style="color: green;"> Низкий:</span> {{ tasks|selectattr('priority', 'equalto', 'низкий')|list|length }}
+    </p>
+
     <div>
         <a href="/" class="nav-btn">Все</a>
-        <a href="/active" class="nav-btn">Показать только активные</a>
-        <a href="/completed" class="nav-btn">Выполненные</a>
+        <a href="/active" class="nav-btn">✅ Активные</a>
+        <a href="/completed" class="nav-btn">Выполнено</a>
         <a href="/complete_all" class="nav-btn">Выполнить все</a>
         <a href="/uncomplete_all" class="nav-btn">Отменить все</a>
+        <a href="/by_priority" class="nav-btn">🚦 По приоритету</a>
+        
+        <!-- НОВАЯ КНОПКА: Активные по приоритету (Пункт 2 из скрина) -->
+        <a href="/by_priority_active" class="nav-btn">⚡ Активные (сорт.)</a>
     </div>
+
+    <h2>Добавить задачу</h2>
+    <form method="POST" action="/add">
+        <input type="text" name="task" placeholder="Новая задача" required>
+        <select name="priority">
+            <option value="высокий">🔴 Высокий</option>
+            <option value="средний" selected>🟡 Средний</option>
+            <option value="низкий">🟢 Низкий</option>
+        </select>
+        <button type="submit">Добавить</button>
+    </form>
 
     <ul>
         {% for task in tasks %}
         <li>
             {% if task.done %}
-            <s>{{ task.text }}</s>
+                <s>{{ task.text }}</s>
             {% else %}
-            {{ task.text }}
+                {{ task.text }}
             {% endif %}
-            — <span class="date">{{ task.date }}</span>
+
+            <!-- ОТОБРАЖЕНИЕ ПРИОРИТЕТА С CSS КЛАССАМИ -->
+            <span class="{% if task.priority == 'высокий' %}high{% elif task.priority == 'средний' %}medium{% else %}low{% endif %}">
+                {% if task.priority == 'высокий' %} 🔴
+                {% elif task.priority == 'средний' %} 🟡
+                {% else %} 🟢
+                {% endif %}
+            </span>
+
+            — <small>{{ task.date }}</small>
             <a href="/toggle/{{ loop.index0 }}">✅ Выполнено</a>
             <a href="/edit/{{ loop.index0 }}">Редактировать</a>
             <a href="/delete/{{ loop.index0 }}">Удалить</a>
         </li>
         {% endfor %}
     </ul>
-
-    <h2>Добавить задачу</h2>
-    <form method="POST" action="/add">
-        <input type="text" name="task" placeholder="Новая задача" required>
-        <button type="submit">Добавить</button>
-    </form>
 
     <p><a href="/clear_all">Очистить всё</a></p>
 </body>
