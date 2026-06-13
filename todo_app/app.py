@@ -196,7 +196,7 @@ def sort_by_priority():
 @app.route('/sort/alpha')
 def sort_by_alpha():
     tasks = load_tasks()
-    sorted_tasks = sorted(tasks, key=lambda t: t.get('text', '').lower())
+    sorted_tasks = sorted(tasks, key=lambda t: t.get('text', '').lower(), reverse=True)
     return render_template('index.html', tasks=sorted_tasks)
 
 

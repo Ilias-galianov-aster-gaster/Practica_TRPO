@@ -38,7 +38,7 @@
 </p>
 
 
-    <!--ИНДИКАТОРЫ ПРИОРИТЕТОВ (Пункт 1 из скрина) -->
+    <!--ИНДИКАТОРЫ ПРИОРИТЕТОВ-->
     <p>
         <span style="color: red;">🔴 Высокий:</span> {{ tasks|selectattr('priority', 'equalto', 'высокий')|list|length }},
         <span style="color: orange;">🟡 Средний:</span> {{ tasks|selectattr('priority', 'equalto', 'средний')|list|length }},
@@ -53,7 +53,7 @@
         <a href="/uncomplete_all" class="nav-btn">Отменить все</a>
         <a href="/by_priority" class="nav-btn">🚦 По приоритету</a>
         
-        <!-- НОВАЯ КНОПКА: Активные по приоритету (Пункт 2 из скрина) -->
+        <!-- НОВАЯ КНОПКА: Активные по приоритету-->
         <a href="/by_priority_active" class="nav-btn">⚡ Активные (сорт.)</a>
     </div>
 
